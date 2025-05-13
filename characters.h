@@ -10,6 +10,10 @@ using namespace std;
 
 extern IMAGE wholebk0;
 extern IMAGE wholebk;
+extern IMAGE common_image;
+extern IMAGE medic_image;
+extern IMAGE sniper_image;
+
 extern void drawText(std::string a, int x, int y);
 extern void movline(bool c, IMAGE d);
 
@@ -17,7 +21,9 @@ extern void movline(bool c, IMAGE d);
 //角色阵营
 enum class Faction { ally, enemy };
 //角色职业（兵种）
-enum class Kind { medic, infantry, scout, sniper };
+enum class Kind { common, medic, scout, sniper };
+
+
 
 //人物类
 class Character
@@ -41,11 +47,12 @@ private:
     static std::vector<Character*> allCharacters; // 静态成员：存储所有角色
     static std::vector<Character*> allyCharacters; // 静态成员：存储所有我方角色
     static std::vector<Character*> enemyCharacters; // 静态成员：存储所有敌方角色
-    IMAGE character_img;    //角色图片
+  
 public:
+    IMAGE character_img;    //角色图片
     bool isdeath;//角色是否死亡
-    bool roundmov = false; //角色该轮是否移动完毕
-    bool rounddone = false; //角色该轮是否结束行动
+    bool roundmov = true; //角色该轮是否移动完毕
+    bool rounddone = true; //角色该轮是否结束行动
     IMAGE tablebk; //角色的属性面板覆盖的背景
     //构造函数
     Character(int a, int b, int c, int d, string e, int atk, int f, int g, int h, int i, double atkRan, Kind kin, Faction j);
@@ -92,7 +99,9 @@ public:
     int getkuan();
     int getright();
     int gettop();
-    Kind getkind();
+    string getkind();
+    int getATK();
+    int getATKran();
     Faction getfaction();
     string getname();
     int getlife();
@@ -102,7 +111,7 @@ public:
     void setmx(int a);
     void setmy(int a);
     //新的回合设置所有我（敌）方的roundmov与rounddone为false
-    static void setroundval(Faction f);
+    static void setroundval(Faction f, bool TorF);
     //void setbk(IMAGE a);
     //绘制人物
     void paintCharacter();

@@ -6,6 +6,8 @@ std::vector<Character*> Character::allCharacters;
 std::vector<Character*> Character::allyCharacters;
 std::vector<Character*> Character::enemyCharacters;
 
+
+
 //人物类构造函数
 Character::Character(int a, int b, int c, int d, string e, int f, int g, int atk, int h, int i, double atkRan, Kind kin, Faction j)
 {
@@ -25,6 +27,28 @@ Character::Character(int a, int b, int c, int d, string e, int f, int g, int atk
 	atkran = atkRan;//角色攻击范围
 	kind = kin;  //角色职业
 	faction = j;  //角色阵营
+	if (this->kind == Kind::common)
+	{
+		//载入步兵贴图
+		loadimage(&common_image, _T("C:\\Users\\DELL\\Desktop\\common.png"), 33, 33);
+		this->character_img = common_image;
+	}
+	else if(this->kind == Kind::medic)
+	{
+		//载入医疗兵贴图
+		loadimage(&medic_image, _T("C:\\Users\\DELL\\Desktop\\medic.png"), 33, 33);
+		this->character_img = medic_image;
+	}
+	else if(this->kind == Kind::sniper)
+	{
+		//载入狙击手贴图
+		loadimage(&sniper_image, _T("C:\\Users\\DELL\\Desktop\\sniper.png"), 33, 33);
+		this->character_img = sniper_image;
+	}
+	else
+	{
+
+	}
 	allCharacters.push_back(this); // 将该角色添加到全局数组
 	if (j == Faction::ally)
 	{
@@ -116,9 +140,30 @@ int Character::gettop()
 	return my - kuan / 2;
 }
 
-Kind Character::getkind()
+string Character::getkind()
 {
-	return kind;
+	if (kind == Kind::common)
+	{
+		return "步兵";
+	}
+	else if (kind == Kind::medic)
+	{
+		return "医疗兵";
+	}
+	else if (kind == Kind::sniper)
+	{
+		return "狙击手";
+	}
+}
+
+int Character::getATK()
+{
+	return ATK;
+}
+
+int Character::getATKran()
+{
+	return int(atkran);
 }
 
 Faction Character::getfaction()
@@ -157,7 +202,7 @@ void Character::setmy(int a)
 	my = a;
 }
 //新的回合设置所有我（敌）方的roundmov与rounddone为false，角色体力加1
-void Character::setroundval(Faction f) 
+void Character::setroundval(Faction f, bool TorF) 
 {
 	//筛选器
 	std::vector<Character*> filteredCharacters; 
@@ -168,17 +213,26 @@ void Character::setroundval(Faction f)
 			[](Character* c) { return c->faction == Faction::ally; });
 		for (Character* c : filteredCharacters) 
 		{
-			c->roundmov = false;
-			c->rounddone = false;
-			if (c->energy < 10)
-			c->energy++; 
+			if (TorF)
+			{
+				c->roundmov = true;
+				c->rounddone = true;
+			}
+			else
+			{
+				c->roundmov = false;
+				c->rounddone = false;
+				if (c->energy < 10)
+					c->energy++;
+			}
 		}
 	}
 	else if (f == Faction::enemy) 
 	{
 		std::copy_if(allCharacters.begin(), allCharacters.end(), std::back_inserter(filteredCharacters),
 			[](Character* c) { return c->faction == Faction::enemy; });
-		for (Character* c : filteredCharacters) {
+		for (Character* c : filteredCharacters) 
+		{
 			c->roundmov = false;
 			c->rounddone = false;
 			if (c->energy < 10)
@@ -190,10 +244,7 @@ void Character::setroundval(Faction f)
 //绘制人物
 void Character::paintCharacter()
 {
-	mx = (mx / 32) * 32 + 16;
-	my = (my / 32) * 32 + 16;
-	setfillcolor(YELLOW);
-	solidrectangle(mx - chang / 2, my - kuan / 2, mx + chang / 2, my + kuan / 2); //无填充矩形
+	putimage(mx - 16, my - 16, &character_img);
 	getimage(&wholebk, 0, 0, getwidth(), getheight());
 }
 
@@ -202,87 +253,89 @@ void Character::characmov(int x, int y)
 {
 	x = (x / 32) * 32 + 16;
 	y = (y / 32) * 32 + 16;
-	gobackX = mx;
-	gobackY = my;
-	IMAGE bk = wholebk;
-	IMAGE partimage = wholebk0;
-	////////////////////////
-	//人物移动前把背景设置为不含人物的背景
-	putimage(0, 0, &wholebk0);
-	getimage(&partimage, mx - chang / 2, my - kuan / 2, chang + 1, kuan + 1);
-	putimage(0, 0, &wholebk);
-	putimage(mx - chang / 2, my - kuan / 2, &partimage);
-	//setfillcolor(LIGHTBLUE);
-	//solidrectangle(mx - chang / 2, my - kuan / 2, mx + chang / 2, my + kuan / 2); //无填充矩形
-	getimage(&bk, 0, 0, getwidth(), getheight());   //当前bk为不含人物的背景
-	////////////////////////
-	if (mx == x && my == y)
-	{
-		BeginBatchDraw();
-		//保持除移动人物外的一切不变
-		putimage(0, 0, &bk);
-		setfillcolor(YELLOW);
-		solidrectangle(mx - chang / 2, my - kuan / 2, mx + chang / 2, my + kuan / 2); //无填充矩形
-		EndBatchDraw();
-	}
-	while (mx != x || my != y)
-	{
-		if (mx != x && my != y)
+		IMAGE bk = wholebk;
+		IMAGE partimage = wholebk0;
+		////////////////////////
+		//人物移动前把背景设置为不含人物的背景
+		putimage(0, 0, &wholebk0);
+		getimage(&partimage, mx - chang / 2, my - kuan / 2, chang + 1, kuan + 1);
+		putimage(0, 0, &wholebk);
+		putimage(mx - chang / 2, my - kuan / 2, &partimage);
+		//setfillcolor(LIGHTBLUE);
+		//solidrectangle(mx - chang / 2, my - kuan / 2, mx + chang / 2, my + kuan / 2); //无填充矩形
+		getimage(&bk, 0, 0, getwidth(), getheight());   //当前bk为不含人物的背景
+		////////////////////////
+		if (mx == x && my == y)
 		{
-			if (x > mx && y > my)
-			{
-				mx += 1;
-				my += 1;
-			}
-			else if (x < mx && y > my)
-			{
-				mx -= 1;
-				my += 1;
-			}
-			else if (x > mx && y < my)
-			{
-				mx += 1;
-				my -= 1;
-			}
-			else if (x < mx && y < my)
-			{
-				mx -= 1;
-				my -= 1;
-			}
+			BeginBatchDraw();
+			//保持除移动人物外的一切不变
+			putimage(0, 0, &bk);
+			putimage(mx - 16, my - 16, &character_img);
+			//setfillcolor(YELLOW);
+			//solidrectangle(mx - chang / 2, my - kuan / 2, mx + chang / 2, my + kuan / 2); //无填充矩形
+			EndBatchDraw();
 		}
-		else if (mx != x && my == y)
+		while (mx != x || my != y)
 		{
-			if (x < mx)
+			if (mx != x && my != y)
 			{
-				mx -= 1;
+				if (x > mx && y > my)
+				{
+					mx += 1;
+					my += 1;
+				}
+				else if (x < mx && y > my)
+				{
+					mx -= 1;
+					my += 1;
+				}
+				else if (x > mx && y < my)
+				{
+					mx += 1;
+					my -= 1;
+				}
+				else if (x < mx && y < my)
+				{
+					mx -= 1;
+					my -= 1;
+				}
 			}
-			else if (x > mx)
+			else if (mx != x && my == y)
 			{
-				mx += 1;
+				if (x < mx)
+				{
+					mx -= 1;
+				}
+				else if (x > mx)
+				{
+					mx += 1;
+				}
 			}
-}
-		else if (mx == x && my != y)
-		{
-			if (y < my)
+			else if (mx == x && my != y)
 			{
-				my -= 1;
+				if (y < my)
+				{
+					my -= 1;
+				}
+				else if (y > my)
+				{
+					my += 1;
+				}
 			}
-			else if (y > my)
-			{
-				my += 1;
-			}
+			BeginBatchDraw();
+			//保持除移动人物外的一切不变
+			putimage(0, 0, &bk);
+			putimage(mx - 16, my - 16, &character_img);
+			//setfillcolor(YELLOW);
+			//solidrectangle(mx - chang / 2, my - kuan / 2, mx + chang / 2, my + kuan / 2); //无填充矩形
+			EndBatchDraw();
 		}
-		BeginBatchDraw();
-		//保持除移动人物外的一切不变
-		putimage(0, 0, &bk);
-		setfillcolor(YELLOW);
-		solidrectangle(mx - chang / 2, my - kuan / 2, mx + chang / 2, my + kuan / 2); //无填充矩形
-		EndBatchDraw();
-	}
-	if (energy > 0)
-	energy--;//体力减1
-	getimage(&bk, 0, 0, getwidth(), getheight());
-	wholebk = bk;
+		if (energy > 0)
+			energy--;//体力减1
+		getimage(&bk, 0, 0, getwidth(), getheight());
+		wholebk = bk;
+	
+	
 }
 	//选中人物
 	bool Character::isMouseInCharacter(int x, int y)
@@ -343,7 +396,7 @@ void Character::characmov(int x, int y)
 		int deltaY = (TargetY - my) / 32;
 		// 计算欧几里得距离（网格单位）
 		double gridDistance = std::sqrt(deltaX * deltaX + deltaY * deltaY);
-		int atk = ATK + rand() % 5 - 2;//攻击力浮动
+		int atk = ATK;//攻击力
 		double missrate = double(a->getagility() - 1);//定义闪避几率 
 		srand(time(0)); // 设置随机数种子
 
@@ -384,45 +437,18 @@ void Character::characmov(int x, int y)
 				}
 				else
 				{
-					if (gridDistance <= 1.5)//双方紧贴，进行肉搏
+					if (gridDistance <= atkran)//进行攻击
 					{
-						movline(1, wholebk);
-						if (a->energy == 0)
-						{
-							a->death();
-							rounddone = true;
-							return true;
-						}
-						a->life = a->life - energy - agility + rand() % 11 - 5;
-						this->life = this->life - a->energy - a->agility + rand() % 11 - 5;
-						a->energy = 0;
-						energy = 0;
-						if (a->life <= 0)
-						{
-							a->death();
-						}
-						if (this->life <= 0)
-						{
-							this->death();
-						}
-						rounddone = true;
-						return true;
-					}
-					else if (gridDistance <= atkran && gridDistance > 1.5)//双方有一定距离，进行远程攻击
-					{
-						if (rand() >= missrate && rand() % 100 <= missrate)//远程攻击但是发生闪避
+						if (rand() % 100 <= missrate)//远程攻击但是发生闪避
 						{
 							movline(1, wholebk);
-							if (this->faction == Faction::ally)
-							{
 								getimage(&temp, 0, 0, getwidth(), getheight());
 								//绘制提醒按钮
 								setfillcolor(WHITE);
 								solidrectangle(560, 288, 715, 350); //矩形
 								drawText("哎呀！没打中！", 580, 308);
 								Sleep(700);
-								putimage(0, 0, &temp);
-							}							
+								putimage(0, 0, &temp);							
 							rounddone = true;
 							energy--;
 							return true;
@@ -430,6 +456,13 @@ void Character::characmov(int x, int y)
 						else//没有闪避，正常远程攻击
 						{
 							movline(1, wholebk);
+							getimage(&temp, 0, 0, getwidth(), getheight());
+							//绘制提醒按钮
+							setfillcolor(WHITE);
+							solidrectangle(560, 288, 715, 350); //矩形
+							drawText("成功击中目标", 580, 308);
+							Sleep(700);
+							putimage(0, 0, &temp);
 							if (atk >= a->life)
 							{
 								a->death();
@@ -458,6 +491,7 @@ void Character::characmov(int x, int y)
 				}
 			}
 	}
+
 	bool Character::action(Character* a)
 	{
 		IMAGE temp;
@@ -473,73 +507,164 @@ void Character::characmov(int x, int y)
 		//4个角色对应4个动作
 		if (kind == Kind::medic)//医疗兵
 		{
-			if (gridDistance <= 1.5)//必须紧贴才能生效
+			if (this->energy >= 1)
 			{
-				if (a->faction == this->faction && a != this)
+				if (gridDistance <= 1.5)//必须紧贴才能生效
 				{
-					movline(1, wholebk);
-					a->life += 10;
-					rounddone = true;
+					if (a->faction == this->faction && a != this)
+					{
+						movline(1, wholebk);
+						a->life += 5;
+						this->energy--;
+						rounddone = true;
+						getimage(&temp, 0, 0, getwidth(), getheight());
+						//绘制提醒按钮
+						setfillcolor(WHITE);
+						solidrectangle(560, 288, 715, 350); //矩形
+						drawText("成功治疗友军！", 580, 308);
+						Sleep(700);
+						putimage(0, 0, &temp);
+						return true;
+					}
+					else if (a->faction == this->faction && a == this)
+					{
+						movline(1, wholebk);
+						a->life += 5;
+						this->energy--;
+						rounddone = true;
+						getimage(&temp, 0, 0, getwidth(), getheight());
+						//绘制提醒按钮
+						setfillcolor(WHITE);
+						solidrectangle(560, 288, 715, 350); //矩形
+						drawText("成功治疗自己！", 580, 308);
+						Sleep(700);
+						putimage(0, 0, &temp);
+						return true;
+					}
+					else
+					{
+						getimage(&temp, 0, 0, getwidth(), getheight());
+						//绘制提醒按钮
+						setfillcolor(WHITE);
+						solidrectangle(560, 288, 790, 350); //矩形
+						drawText("不能以敌军作为目标！", 580, 308);
+						Sleep(700);
+						putimage(0, 0, &temp);
+						return false;
+					}
+
+				}
+				else//超出距离则提示
+				{
 					getimage(&temp, 0, 0, getwidth(), getheight());
 					//绘制提醒按钮
 					setfillcolor(WHITE);
 					solidrectangle(560, 288, 715, 350); //矩形
-					drawText("成功治疗友军！", 580, 308);
-					Sleep(700);
-					putimage(0, 0, &temp);
-					return true;
-				}
-				else if (a->faction == this->faction && a == this)
-				{
-					movline(1, wholebk);
-					a->life += 10;
-					rounddone = true;
-					getimage(&temp, 0, 0, getwidth(), getheight());
-					//绘制提醒按钮
-					setfillcolor(WHITE);
-					solidrectangle(560, 288, 715, 350); //矩形
-					drawText("成功治疗自己！", 580, 308);
-					Sleep(700);
-					putimage(0, 0, &temp);
-					return true;
-				}
-				else
-				{
-					getimage(&temp, 0, 0, getwidth(), getheight());
-					//绘制提醒按钮
-					setfillcolor(WHITE);
-					solidrectangle(560, 288, 790, 350); //矩形
-					drawText("不能以敌军作为目标！", 580, 308);
+					drawText("目标超出距离！", 580, 308);
 					Sleep(700);
 					putimage(0, 0, &temp);
 					return false;
 				}
-				
 			}
-			else//超出距离则提示
+			else
 			{
 				getimage(&temp, 0, 0, getwidth(), getheight());
 				//绘制提醒按钮
 				setfillcolor(WHITE);
 				solidrectangle(560, 288, 715, 350); //矩形
-				drawText("目标超出距离！", 580, 308);
+				drawText("体力不足！", 580, 308);
 				Sleep(700);
 				putimage(0, 0, &temp);
 				return false;
 			}
-
 		}
-		else if (kind == Kind::infantry)//步兵
+		else if (kind == Kind::common)//步兵
 		{
-
-		}
-		else if (kind == Kind::scout)//侦察兵
-		{
-
+			getimage(&temp, 0, 0, getwidth(), getheight());
+			//绘制提醒按钮
+			setfillcolor(WHITE);
+			solidrectangle(560, 288, 790, 350); //矩形
+			drawText("不存在特殊动作！", 580, 308);
+			Sleep(700);
+			putimage(0, 0, &temp);
+			return false;
 		}
 		else if (kind == Kind::sniper)//狙击手
 		{
+			if (this->energy >= 3)
+			{
+				if (gridDistance <= 5)//狙击距离
+				{
+					if (a->faction != this->faction && a != this)
+					{
+						movline(1, wholebk);
+						if (a->life >= 6)
+						{
+							a->life -= 5;
+						}
+						else
+						{
+							a->death();
+						}
+						this->energy -= 3;
+						rounddone = true;
+						getimage(&temp, 0, 0, getwidth(), getheight());
+						//绘制提醒按钮
+						setfillcolor(WHITE);
+						solidrectangle(560, 288, 715, 350); //矩形
+						drawText("成功伤害敌军！", 580, 308);
+						Sleep(700);
+						putimage(0, 0, &temp);
+						return true;
+					}
+					else if (a->faction == this->faction && a == this)
+					{
+						getimage(&temp, 0, 0, getwidth(), getheight());
+						//绘制提醒按钮
+						setfillcolor(WHITE);
+						solidrectangle(560, 288, 715, 350); //矩形
+						drawText("不要伤害自己！", 580, 308);
+						Sleep(700);
+						putimage(0, 0, &temp);
+						return false;
+					}
+					else
+					{
+						getimage(&temp, 0, 0, getwidth(), getheight());
+						//绘制提醒按钮
+						setfillcolor(WHITE);
+						solidrectangle(560, 288, 790, 350); //矩形
+						drawText("不能以敌军作为目标！", 580, 308);
+						Sleep(700);
+						putimage(0, 0, &temp);
+						return false;
+					}
 
+				}
+				else//超出距离则提示
+				{
+					getimage(&temp, 0, 0, getwidth(), getheight());
+					//绘制提醒按钮
+					setfillcolor(WHITE);
+					solidrectangle(560, 288, 715, 350); //矩形
+					drawText("目标超出距离！", 580, 308);
+					Sleep(700);
+					putimage(0, 0, &temp);
+					return false;
+				}
+			}
+			else
+			{
+				getimage(&temp, 0, 0, getwidth(), getheight());
+				//绘制提醒按钮
+				setfillcolor(WHITE);
+				solidrectangle(560, 288, 715, 350); //矩形
+				drawText("体力不足！", 580, 308);
+				Sleep(700);
+				putimage(0, 0, &temp);
+				return false;
+			}
+			
 		}
 	}
 
