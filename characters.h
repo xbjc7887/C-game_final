@@ -10,9 +10,12 @@ using namespace std;
 
 extern IMAGE wholebk0;
 extern IMAGE wholebk;
-extern IMAGE common_image;
-extern IMAGE medic_image;
-extern IMAGE sniper_image;
+extern IMAGE common1_image;
+extern IMAGE medic1_image;
+extern IMAGE sniper1_image;
+extern IMAGE common2_image;
+extern IMAGE medic2_image;
+extern IMAGE sniper2_image;
 
 extern void drawText(std::string a, int x, int y);
 extern void movline(bool c, IMAGE d);
@@ -99,10 +102,12 @@ public:
     int getkuan();
     int getright();
     int gettop();
-    string getkind();
+    Kind getkind();
+    string getkindname();
     int getATK();
     int getATKran();
     Faction getfaction();
+    string getfactionname();
     string getname();
     int getlife();
     int getenergy();

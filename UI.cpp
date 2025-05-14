@@ -126,25 +126,7 @@ void movline(bool c, IMAGE d)
 	{
 		putimage(0, 0, &d);
 	}
-	
-	
 }
 
-////显示角色面板
-//void showtable(Character a, int x, int y, IMAGE bk)
-//{
-//	if (a.isMouseInCharacter(x, y))
-//	{
-//		//绘制矩形
-//		BeginBatchDraw();
-//		setfillcolor(WHITE);
-//		solidrectangle(a.getright()+20, a.gettop()+20, a.getright() + 80, a.gettop() + 80);//矩形
-//		EndBatchDraw();
-//	}
-//	else if(!a.isMouseInCharacter(x, y))
-//	{
-//		getimage(&bk, a.getright() + 20, a.gettop() + 20, 60, 60);
-//		putimage(a.getright() + 20, a.gettop() + 20, &bk);
-//	}
-//}
+
 

@@ -29,21 +29,48 @@ Character::Character(int a, int b, int c, int d, string e, int f, int g, int atk
 	faction = j;  //½ÇÉ«ÕóÓª
 	if (this->kind == Kind::common)
 	{
-		//ÔØÈë²½±øÌùÍ¼
-		loadimage(&common_image, _T("C:\\Users\\DELL\\Desktop\\common.png"), 33, 33);
-		this->character_img = common_image;
+		if (this->faction == Faction::ally)
+		{
+			//ÔØÈë²½±øÌùÍ¼
+			loadimage(&common1_image, _T("C:\\Users\\DELL\\Desktop\\common1.png"), 33, 33);
+			this->character_img = common1_image;
+		}
+		else
+		{
+			//ÔØÈë²½±øÌùÍ¼
+			loadimage(&common2_image, _T("C:\\Users\\DELL\\Desktop\\common2.png"), 33, 33);
+			this->character_img = common2_image;
+		}
 	}
 	else if(this->kind == Kind::medic)
 	{
-		//ÔØÈëÒ½ÁÆ±øÌùÍ¼
-		loadimage(&medic_image, _T("C:\\Users\\DELL\\Desktop\\medic.png"), 33, 33);
-		this->character_img = medic_image;
+		if (this->faction == Faction::ally)
+		{
+			//ÔØÈëÒ½ÁÆ±øÌùÍ¼
+			loadimage(&medic1_image, _T("C:\\Users\\DELL\\Desktop\\medic1.png"), 33, 33);
+			this->character_img = medic1_image;
+		}
+		else
+		{
+			//ÔØÈëÒ½ÁÆ±øÌùÍ¼
+			loadimage(&medic2_image, _T("C:\\Users\\DELL\\Desktop\\medic2.png"), 33, 33);
+			this->character_img = medic2_image;
+		}
 	}
 	else if(this->kind == Kind::sniper)
 	{
-		//ÔØÈë¾Ñ»÷ÊÖÌùÍ¼
-		loadimage(&sniper_image, _T("C:\\Users\\DELL\\Desktop\\sniper.png"), 33, 33);
-		this->character_img = sniper_image;
+		if (this->faction == Faction::ally)
+		{
+			//ÔØÈë¾Ñ»÷ÊÖÌùÍ¼
+			loadimage(&sniper1_image, _T("C:\\Users\\DELL\\Desktop\\sniper1.png"), 33, 33);
+			this->character_img = sniper1_image;
+		}
+		else
+		{
+			//ÔØÈë¾Ñ»÷ÊÖÌùÍ¼
+			loadimage(&sniper2_image, _T("C:\\Users\\DELL\\Desktop\\sniper2.png"), 33, 33);
+			this->character_img = sniper2_image;
+		}
 	}
 	else
 	{
@@ -140,7 +167,23 @@ int Character::gettop()
 	return my - kuan / 2;
 }
 
-string Character::getkind()
+Kind Character::getkind()
+{
+	if (kind == Kind::common)
+	{
+		return Kind::common;
+	}
+	else if (kind == Kind::medic)
+	{
+		return Kind::medic;
+	}
+	else if (kind == Kind::sniper)
+	{
+		return Kind::sniper;
+	}
+}
+
+string Character::getkindname()
 {
 	if (kind == Kind::common)
 	{
@@ -169,6 +212,17 @@ int Character::getATKran()
 Faction Character::getfaction()
 {
 	return faction;
+}
+string Character::getfactionname()
+{
+	if (this->faction == Faction::ally)
+	{
+		return "Íæ¼Ò1";
+	}
+	else
+	{
+		return "Íæ¼Ò2";
+	}	
 }
 string Character::getname()
 {
@@ -233,10 +287,18 @@ void Character::setroundval(Faction f, bool TorF)
 			[](Character* c) { return c->faction == Faction::enemy; });
 		for (Character* c : filteredCharacters) 
 		{
-			c->roundmov = false;
-			c->rounddone = false;
-			if (c->energy < 10)
-			c->energy++;
+			if (TorF)
+			{
+				c->roundmov = true;
+				c->rounddone = true;
+			}
+			else
+			{
+				c->roundmov = false;
+				c->rounddone = false;
+				if (c->energy < 10)
+					c->energy++;
+			}
 		}
 	}
 }

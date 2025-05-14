@@ -4,14 +4,14 @@
 #include "characters.h"
 using namespace std;
 
-//角色指令框的阶段
+//角色阶段
 enum class GameState { Idle, ShowCommand, DoneMov, WaitingForMovTarget, WaitingForAtkTarget, WaitingForActTarget};
 
 //文字绘制
 void drawText(std::string a, int x, int y);
 
 // 按钮类
-class Button
+class Button 
 {
 protected:
 	int chang, kuan;
@@ -46,6 +46,5 @@ public:
 //移动网格线，bool c决定是绘制还是消除
 void movline(bool c, IMAGE d);
 
-//显示角色面板
-//void showtable(Character a, int x, int y, IMAGE bk);
+
 
